@@ -50,7 +50,10 @@
 
   <div class="max-w-md mx-auto pt-8 px-4">
     <!-- Header -->
-    <header class="mb-8 text-center">
+    <header class="mb-8 text-center relative">
+      <button id="aboutBtn" class="absolute right-0 top-0 p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-all duration-200" title="このアプリについて">
+        <i data-lucide="info" class="w-6 h-6"></i>
+      </button>
       <div class="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-xl shadow-blue-500/30 mb-4 transform -rotate-3 transition-transform hover:rotate-0 duration-300">
         <i data-lucide="contact" class="w-8 h-8 text-white transform rotate-3"></i>
       </div>
@@ -186,6 +189,112 @@
     </main>
   </div>
 
+  <!-- About Modal -->
+  <div id="aboutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 opacity-0">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col max-h-[90vh] transform scale-95 transition-transform duration-300" id="aboutModalContent">
+      <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <h3 class="text-lg font-extrabold text-slate-800 flex items-center gap-2">
+          <i data-lucide="info" class="w-5 h-5 text-blue-500"></i>
+          このアプリについて
+        </h3>
+        <button id="closeAboutBtn" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto space-y-6">
+        
+        <!-- 概要 -->
+        <div>
+          <p class="text-sm text-slate-600 leading-relaxed font-bold">
+            入力した連絡先情報（vCard形式）を、NTAG215などの<span class="text-blue-600">NFCタグ</span>に書き込むツールです。<br>
+            書き込んだNFCタグをスマートフォンにかざすだけで、簡単に連絡先を交換・登録できるようになります。
+          </p>
+        </div>
+        
+        <!-- アニメーション領域 -->
+        <div class="bg-slate-50 rounded-2xl p-4 flex justify-center items-center border border-slate-100 shadow-inner">
+          <svg viewBox="0 0 240 120" class="w-full max-w-[240px] h-auto drop-shadow-sm">
+            <defs>
+              <style>
+                .svg-wave {
+                  fill: none;
+                  stroke: #3b82f6;
+                  stroke-width: 3;
+                  stroke-linecap: round;
+                  transform-origin: 100px 60px;
+                  animation: svg-pulse-wave 2s infinite ease-out;
+                }
+                .svg-wave-1 { animation-delay: 0s; }
+                .svg-wave-2 { animation-delay: 0.6s; }
+                .svg-wave-3 { animation-delay: 1.2s; }
+                @keyframes svg-pulse-wave {
+                  0% { transform: scale(0.5); opacity: 1; }
+                  100% { transform: scale(1.5); opacity: 0; }
+                }
+                .svg-phone-move {
+                  animation: svg-phone-float 3s infinite ease-in-out alternate;
+                }
+                @keyframes svg-phone-float {
+                  0% { transform: translateX(-4px); }
+                  100% { transform: translateX(4px); }
+                }
+                .svg-tag-glow {
+                  animation: svg-tag-pulse 2s infinite alternate;
+                }
+                @keyframes svg-tag-pulse {
+                  0% { filter: drop-shadow(0 0 2px rgba(59,130,246,0.2)); }
+                  100% { filter: drop-shadow(0 0 8px rgba(59,130,246,0.8)); }
+                }
+              </style>
+            </defs>
+
+            <!-- スマホ -->
+            <g class="svg-phone-move">
+              <rect x="40" y="20" width="50" height="80" rx="8" fill="#1e293b" />
+              <rect x="44" y="24" width="42" height="72" rx="4" fill="#f1f5f9" />
+              <!-- モックUI -->
+              <rect x="50" y="32" width="30" height="8" rx="4" fill="#cbd5e1" />
+              <circle cx="65" cy="55" r="8" fill="#3b82f6" />
+              <path d="M55 70 Q 65 60 75 70" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+            </g>
+
+            <!-- 電波 -->
+            <path class="svg-wave svg-wave-1" d="M110 40 Q120 60 110 80" />
+            <path class="svg-wave svg-wave-2" d="M120 30 Q140 60 120 90" />
+            <path class="svg-wave svg-wave-3" d="M130 20 Q160 60 130 100" />
+
+            <!-- NFCタグ -->
+            <g class="svg-tag-glow" transform="translate(160, 40)">
+              <!-- シール基盤 -->
+              <rect x="0" y="0" width="40" height="40" rx="20" fill="#ffffff" stroke="#e2e8f0" stroke-width="2" />
+              <!-- アンテナコイル -->
+              <rect x="6" y="6" width="28" height="28" rx="14" fill="none" stroke="#94a3b8" stroke-width="1.5" />
+              <rect x="10" y="10" width="20" height="20" rx="10" fill="none" stroke="#94a3b8" stroke-width="1.5" />
+              <rect x="14" y="14" width="12" height="12" rx="6" fill="none" stroke="#94a3b8" stroke-width="1.5" />
+              <!-- ICチップ -->
+              <rect x="17" y="17" width="6" height="6" rx="1" fill="#3b82f6" />
+            </g>
+          </svg>
+        </div>
+
+        <!-- 使い方 -->
+        <div class="space-y-2">
+          <h4 class="font-extrabold text-slate-800 border-l-4 border-blue-500 pl-2">使い方</h4>
+          <ol class="list-decimal list-inside text-sm text-slate-600 font-bold space-y-1.5 ml-1">
+            <li>連絡先情報を入力します。</li>
+            <li>「NFCタグに書き込む」を押します。</li>
+            <li>待機状態になったら、スマートフォンの背面（NFCリーダー部分）にタグをぴったり重ねます。</li>
+          </ol>
+        </div>
+        
+        <div class="bg-amber-50 text-amber-800 p-4 rounded-xl text-xs font-bold flex gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mt-0.5"></i>
+          <p>※NFC書き込み機能は現在AndroidのChromeでのみ利用可能です。iPhone等ではVCFダウンロード機能をご利用ください。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // アイコンの初期化
     lucide.createIcons();
@@ -214,6 +323,11 @@
       downloadBtn: document.getElementById('downloadBtn'),
       cancelBtn: document.getElementById('cancelBtn'),
       
+      aboutBtn: document.getElementById('aboutBtn'),
+      aboutModal: document.getElementById('aboutModal'),
+      aboutModalContent: document.getElementById('aboutModalContent'),
+      closeAboutBtn: document.getElementById('closeAboutBtn'),
+
       actionArea: document.getElementById('actionArea'),
       waitingArea: document.getElementById('waitingArea'),
       successMsg: document.getElementById('successMsg'),
@@ -384,6 +498,35 @@
       // クリーンアップ
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    });
+
+    // モーダルの開閉処理
+    function openModal() {
+      elements.aboutModal.classList.remove('hidden');
+      // 少し遅延させてopacityを変更（アニメーション用）
+      setTimeout(() => {
+        elements.aboutModal.classList.remove('opacity-0');
+        elements.aboutModalContent.classList.remove('scale-95');
+      }, 10);
+    }
+
+    function closeModal() {
+      elements.aboutModal.classList.add('opacity-0');
+      elements.aboutModalContent.classList.add('scale-95');
+      // トランジション終了後にhiddenを追加
+      setTimeout(() => {
+        elements.aboutModal.classList.add('hidden');
+      }, 300);
+    }
+
+    elements.aboutBtn.addEventListener('click', openModal);
+    elements.closeAboutBtn.addEventListener('click', closeModal);
+
+    // モーダル背景クリックで閉じる
+    elements.aboutModal.addEventListener('click', (e) => {
+      if (e.target === elements.aboutModal) {
+        closeModal();
+      }
     });
 
   </script>
