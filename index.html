@@ -55,18 +55,22 @@
         <i data-lucide="contact" class="w-8 h-8 text-white transform rotate-3"></i>
       </div>
       <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">NFC 連絡先ライター</h1>
-      <p class="text-sm text-slate-500 mt-2 font-bold">NTAG215にvCardを書き込みます</p>
+      <p class="text-sm text-slate-500 mt-2 font-bold">NTAG215への書き込み・VCF保存</p>
     </header>
 
     <main class="space-y-6">
       
       <!-- 未サポート警告 -->
-      <div id="unsupportedWarning" class="hidden bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-2xl flex gap-3 shadow-sm items-start">
-        <i data-lucide="alert-circle" class="shrink-0 w-5 h-5 mt-0.5 text-rose-500"></i>
-        <p class="text-sm font-bold leading-relaxed">
-          お使いのブラウザはWeb NFCをサポートしていません。<br/>
-          <strong class="font-extrabold">AndroidのChromeブラウザ</strong>からアクセスしてください。
-        </p>
+      <div id="unsupportedWarning" class="hidden bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-2xl flex gap-3 shadow-sm items-start">
+        <i data-lucide="info" class="shrink-0 w-5 h-5 mt-0.5 text-amber-500"></i>
+        <div class="space-y-1">
+          <p class="text-sm font-bold leading-relaxed">
+            お使いのブラウザはWeb NFCをサポートしていません。
+          </p>
+          <p class="text-xs font-medium text-amber-700/80">
+            NFCへの書き込みはAndroidのChromeからご利用ください。VCFファイルのダウンロードはそのままご利用いただけます。
+          </p>
+        </div>
       </div>
 
       <!-- 入力フォーム -->
@@ -120,7 +124,7 @@
       <div class="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100">
         <div class="flex justify-between items-end mb-3">
           <span class="text-sm font-bold text-slate-600 flex items-center gap-1.5">
-            <i data-lucide="hard-drive" class="w-4 h-4 text-slate-400"></i> データ容量
+            <i data-lucide="hard-drive" class="w-4 h-4 text-slate-400"></i> NFC データ容量
           </span>
           <span id="capacityText" class="text-sm font-extrabold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg transition-colors">
             0 / 504 Bytes
@@ -130,23 +134,27 @@
           <div id="capacityBar" class="h-full transition-all duration-500 ease-out bg-gradient-to-r from-blue-400 to-blue-600" style="width: 0%"></div>
         </div>
         <p id="capacityWarning" class="hidden text-xs text-rose-500 mt-3 flex items-center gap-1.5 font-bold bg-rose-50 p-3 rounded-xl">
-          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i> 容量をオーバーしています。一部を削ってください。
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i> NFCの容量をオーバーしています。※VCFのダウンロードは可能です。
         </p>
 
         <details class="mt-4 text-sm text-slate-500 group">
           <summary class="cursor-pointer font-bold hover:text-blue-600 transition-colors flex items-center gap-1 select-none">
             <i data-lucide="chevron-right" class="w-4 h-4 group-open:rotate-90 transition-transform"></i>
-            書き込まれる生データを確認
+            出力される生データを確認
           </summary>
           <pre id="vcardPreview" class="mt-3 p-4 bg-slate-800 text-slate-200 border border-slate-700 rounded-2xl overflow-x-auto text-xs whitespace-pre-wrap font-mono shadow-inner"></pre>
         </details>
       </div>
 
       <!-- アクションエリア -->
-      <div id="actionArea" class="pt-2">
+      <div id="actionArea" class="pt-2 flex flex-col gap-3">
         <button id="writeBtn" class="w-full py-4 px-4 font-bold rounded-2xl shadow-lg transition-all duration-200 flex justify-center items-center gap-2 text-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/30 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
           <i data-lucide="smartphone-nfc" class="w-6 h-6"></i> 
           NFCタグに書き込む
+        </button>
+        <button id="downloadBtn" class="w-full py-4 px-4 font-bold rounded-2xl shadow-sm transition-all duration-200 flex justify-center items-center gap-2 text-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-blue-600 hover:border-blue-300 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0">
+          <i data-lucide="download" class="w-6 h-6"></i> 
+          VCFをダウンロード
         </button>
       </div>
 
@@ -203,6 +211,7 @@
       vcardPreview: document.getElementById('vcardPreview'),
       
       writeBtn: document.getElementById('writeBtn'),
+      downloadBtn: document.getElementById('downloadBtn'),
       cancelBtn: document.getElementById('cancelBtn'),
       
       actionArea: document.getElementById('actionArea'),
@@ -348,6 +357,33 @@
       if (abortController) {
         abortController.abort();
       }
+    });
+
+    // VCFダウンロード処理
+    elements.downloadBtn.addEventListener('click', () => {
+      // VCFデータのBlobを作成
+      const blob = new Blob([currentVcardString], { type: 'text/vcard;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      
+      // 一時的なaタグを作成してダウンロードを発火
+      const a = document.createElement('a');
+      a.href = url;
+      
+      // ファイル名の生成（姓＋名が存在すればそれを使用）
+      const lastName = elements.lastName.value || '';
+      const firstName = elements.firstName.value || '';
+      const fullName = `${lastName}${firstName}`.trim();
+      const fileName = fullName ? `${fullName}.vcf` : 'contact.vcf';
+      
+      a.download = fileName;
+      
+      // ダウンロード実行
+      document.body.appendChild(a);
+      a.click();
+      
+      // クリーンアップ
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     });
 
   </script>
